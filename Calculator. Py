@@ -1,0 +1,92 @@
+import tkinter as tk
+import math
+
+# Main App
+class ScientificCalculator:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Scientific Calculator")
+
+        self.expression = ""
+
+        # Theme
+        self.dark_mode = False
+
+        # Entry field
+        self.entry = tk.Entry(root, font=("Arial", 20), bd=10, relief=tk.RIDGE, justify="right")
+        self.entry.grid(row=0, column=0, columnspan=6, ipadx=8, ipady=15)
+
+        # Buttons
+        buttons = [
+            ('7',1,0), ('8',1,1), ('9',1,2), ('/',1,3), ('sin',1,4), ('cos',1,5),
+            ('4',2,0), ('5',2,1), ('6',2,2), ('*',2,3), ('tan',2,4), ('log',2,5),
+            ('1',3,0), ('2',3,1), ('3',3,2), ('-',3,3), ('sqrt',3,4), ('^',3,5),
+            ('0',4,0), ('.',4,1), ('(',4,2), (')',4,3), ('C',4,4), ('=',4,5),
+        ]
+
+        for (text, row, col) in buttons:
+            tk.Button(root, text=text, width=6, height=2,
+                      command=lambda t=text: self.click(t)
+                      ).grid(row=row, column=col)
+
+        # Theme Toggle Button
+        tk.Button(root, text="Toggle Theme", command=self.toggle_theme)\
+            .grid(row=5, column=0, columnspan=6, sticky="nsew")
+
+        self.apply_theme()
+
+    def click(self, button):
+        if button == "=":
+            try:
+                expr = self.expression.replace('^', '**')
+                expr = expr.replace('sin', 'math.sin')
+                expr = expr.replace('cos', 'math.cos')
+                expr = expr.replace('tan', 'math.tan')
+                expr = expr.replace('log', 'math.log10')
+                expr = expr.replace('sqrt', 'math.sqrt')
+
+                result = str(eval(expr))
+                self.entry.delete(0, tk.END)
+                self.entry.insert(tk.END, result)
+                self.expression = result
+            except:
+                self.entry.delete(0, tk.END)
+                self.entry.insert(tk.END, "Error")
+                self.expression = ""
+
+        elif button == "C":
+            self.expression = ""
+            self.entry.delete(0, tk.END)
+
+        else:
+            self.expression += str(button)
+            self.entry.delete(0, tk.END)
+            self.entry.insert(tk.END, self.expression)
+
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        self.apply_theme()
+
+    def apply_theme(self):
+        if self.dark_mode:
+            bg = "#1e1e1e"
+            fg = "white"
+            btn_bg = "#333"
+        else:
+            bg = "white"
+            fg = "black"
+            btn_bg = "#ddd"
+
+        self.root.configure(bg=bg)
+        self.entry.configure(bg=bg, fg=fg, insertbackground=fg)
+
+        for widget in self.root.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.configure(bg=btn_bg, fg=fg)
+
+
+# Run App
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ScientificCalculator(root)
+    root.mainloop()
